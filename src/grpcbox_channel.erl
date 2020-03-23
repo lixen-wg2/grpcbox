@@ -96,7 +96,10 @@ init([Name, Endpoints, Options]) ->
 
     insert_interceptors(Name, Options),
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3372249 (handle many identical channel IDs)
 %% we want to handle Endpoints being either a list of unique Endpoint,
 %% or a tuple {PoolSize, Endpoint} where one Endpoint repeats PoolSize times
     EPs =
