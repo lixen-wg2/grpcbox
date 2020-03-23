@@ -96,13 +96,25 @@ init([Name, Endpoints, Options]) ->
 
     insert_interceptors(Name, Options),
 
-    gproc_pool:new(Name, BalancerType, [{size, length(Endpoints)},
-                                        {auto_size, true}]),
+
+%% we want to handle Endpoints being either a list of unique Endpoint,
+%% or a tuple {PoolSize, Endpoint} where one Endpoint repeats PoolSize times
+    EPs =
+        case Endpoints of
+            {PoolSize, Endpoint} ->
+                lists:zip(lists:duplicate(PoolSize, Endpoint), lists:seq(1, PoolSize));
+            Endpoints when is_list(Endpoints) ->
+                lists:zip(Endpoints, lists:seq(1, length(Endpoints)))
+        end,
+
+    gproc_pool:new(Name, BalancerType, [{size, length(EPs)},
+                                        {autosize, true}]),
+
     Data = #data{
         pool = Name,
         encoding = Encoding,
         stats_handler = StatsHandler,
-        endpoints = Endpoints1
+        endpoints = EPs
     },
 
     case maps:get(sync_start, Options, false) of
@@ -178,7 +190,7 @@ start_workers(Pool, StatsHandler, Encoding, Endpoints) ->
          {ok, Pid} = grpcbox_subchannel:start_link(Endpoint, Pool, {Transport, Host, Port, SSLOptions, ConnectionSettings},
                                                    Encoding, StatsHandler),
          Pid
-     end || Endpoint={Transport, Host, Port, SSLOptions, ConnectionSettings} <- Endpoints].
+     end || Endpoint = {{Transport, Host, Port, SSLOptions, ConnectionSettings}, _Seq} <- Endpoints].
 
 %% add the chatterbox connection settings map to the endpoint if it isn't there already
 normalize_endpoints(Endpoints) ->
