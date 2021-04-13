@@ -109,6 +109,7 @@ on_receive_headers(Headers, State=#state{ctx=_Ctx}) ->
                   grpcbox_metadata:new_incoming_ctx(Metadata);
               D ->
 <<<<<<< HEAD
+<<<<<<< HEAD
                   Deadline = max(0, erlang:convert_time_unit(D, nanosecond, millisecond)),
                   erlang:start_timer(Deadline, self(), <<"grpc-timeout">>),
                   ctx:with_deadline_after(grpcbox_metadata:new_incoming_ctx(Metadata), D, nanosecond)
@@ -118,6 +119,12 @@ on_receive_headers(Headers, State=#state{ctx=_Ctx}) ->
           end,
 
 >>>>>>> 681a23a (Add unary_error function)
+=======
+                  Deadline = max(0, erlang:convert_time_unit(D, nanosecond, millisecond)),
+                  erlang:start_timer(Deadline, self(), <<"grpc-timeout">>),
+                  ctx:with_deadline_after(grpcbox_metadata:new_incoming_ctx(Metadata), D, nanosecond)
+          end,
+>>>>>>> 95d7976 (start timer and use correct time unit)
     FullPath = proplists:get_value(<<":path">>, Headers),
     %% wait to rpc_begin here since we need to know the method
     Ctx1 = ctx:with_value(Ctx, grpc_server_method, FullPath),
@@ -466,8 +473,11 @@ handle_info({'EXIT', _, _Other}, State) ->
     State;
 handle_info({timeout,_Ref,<<"grpc-timeout">>}, State) ->
     end_stream(?GRPC_STATUS_DEADLINE_EXCEEDED, <<"Deadline expired">>, State),
+<<<<<<< HEAD
     State;
 handle_info(_, State) ->
+=======
+>>>>>>> 95d7976 (start timer and use correct time unit)
     State.
 
 add_headers(Headers, #state{handler=Pid}) ->
