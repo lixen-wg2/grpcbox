@@ -112,7 +112,6 @@ on_receive_headers(Headers, State=#state{ctx=_Ctx}) ->
                   erlang:start_timer(Deadline, self(), <<"grpc-timeout">>),
                   ctx:with_deadline_after(grpcbox_metadata:new_incoming_ctx(Metadata), D, nanosecond)
           end,
-
     FullPath = proplists:get_value(<<":path">>, Headers),
     %% wait to rpc_begin here since we need to know the method
     Ctx1 = ctx:with_value(Ctx, grpc_server_method, FullPath),
