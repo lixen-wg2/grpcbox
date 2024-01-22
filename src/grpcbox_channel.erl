@@ -88,8 +88,6 @@ stop(Name, Reason) ->
 init([Name, Endpoints, Options]) ->
     process_flag(trap_exit, true),
 
-    Endpoints1 = normalize_endpoints(Endpoints),
-
     BalancerType = maps:get(balancer, Options, round_robin),
     Encoding = maps:get(encoding, Options, identity),
     StatsHandler = maps:get(stats_handler, Options, undefined),
@@ -120,7 +118,7 @@ init([Name, Endpoints, Options]) ->
         false ->
             {ok, idle, Data, [{next_event, internal, connect}]};
         true ->
-            _ = start_workers(Name, StatsHandler, Encoding, Endpoints1),
+            _ = start_workers(Name, StatsHandler, Encoding, EPs),
             {ok, connected, Data}
     end.
 
